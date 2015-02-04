@@ -92,9 +92,12 @@ class DB {
 
     function getColumns($table_name) {
         if (!isset($this->columns[$table_name])) {
-            $this->columns[$table_name] = array_map(function($row) {
+            $columns = array_map(function($row) {
                 return $row[0];
             }, $this->query("show columns from {$table_name}"));
+            $this->columns[$table_name] = array_filter($columns, function($column_name) {
+                return !in_array($column_name, array('id', 'created_at', 'updated_at'));
+            });
         }
         return $this->columns[$table_name];
     }
