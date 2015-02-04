@@ -1,6 +1,6 @@
 <?php
 
-require_once('utils.php')
+require_once('utils.php');
 require_once('db.php');
 require_once('association.php');
 
@@ -13,13 +13,13 @@ class Table {
     private $foreignKeys;
     private $foreignTableName;
 
-    function __construct($db, $name, $columns, &$relations) {
+    function __construct($db, $name, $columns, $relations) {
         $this->db = $db;
         $this->name = $name;
         $this->columns = $columns;
         $this->relations = &$relations;
         $this->primaryKey = $name . ".id";
-        $this->foreignKeys = [];
+        $this->foreignKeys = array();
     }
 
     public function __get($name) {

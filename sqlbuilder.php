@@ -14,12 +14,12 @@ class SqlBuilder {
 
     private function start($mode) {
         $this->mode = $mode;
-        $this->fields = [];
-        $this->tables = [];
-        $this->conditions = [];
-        $this->groups = [];
-        $this->havings = [];
-        $this->orders = [];
+        $this->fields = array();
+        $this->tables = array();
+        $this->conditions = array();
+        $this->groups = array();
+        $this->havings = array();
+        $this->orders = array();
         $this->limit = -1;
         $this->offset = -1;
         return $this;
@@ -55,33 +55,33 @@ class SqlBuilder {
         return $this;
     }
 
-    public function setFields(...$fields) {
-        $this->fields = $fields;
+    public function setField() {
+        $this->fields = func_get_args();
         return $this;
     }
 
-    public function setTables(...$tables) {
-        $this->tables = $tables;
+    public function setTable() {
+        $this->tables = func_get_args();
         return $this;
     }
 
-    public function setConditions(...$conditions) {
-        $this->conditions = $conditions;
+    public function setCondition() {
+        $this->conditions = func_get_args();
         return $this;
     }
 
-    public function setGroups(...$groups) {
-        $this->groups = $groups;
+    public function setGroup() {
+        $this->groups = func_get_args();
         return $this;
     }
 
-    public function setHavings(...$havings) {
-        $this->havings = $havings;
+    public function setHaving() {
+        $this->havings = func_get_args();
         return $this;
     }
 
-    public function setOrders(...$orders) {
-        $this->orders = $orders;
+    public function setOrder() {
+        $this->orders = func_get_args();
         return $this;
     }
 
@@ -105,8 +105,8 @@ class SqlBuilder {
         return $this->setTables($table);
     }
 
-    public function values(...$columns) {
-        return $this->setFields(...$columns);
+    public function value() {
+        return call_user_func_array(array($this, 'setFields'), func_get_args());
     }
 
     public function update($table) {
@@ -114,16 +114,16 @@ class SqlBuilder {
         return $this->setTables($table);
     }
 
-    public function set(...$columns) {
-        return $this->setFields(...$columns);
+    public function set() {
+        return call_user_func_array(array($this, 'setFields'), func_get_args());
     }
 
-    public function select(...$columns) {
+    public function select() {
         $this->start('select');
-        if (count($columns) === 0) {
+        if (func_num_args() === 0) {
             return $this->setFields('*');
         } else {
-            return $this->setFields(...$columns);
+            return call_user_func_array(array($this, 'setFields'), func_get_args());
         }
     }
 
@@ -139,29 +139,29 @@ class SqlBuilder {
         return $this->addTable($table);
     }
 
-    public function on(...$conditions) {
+    public function on() {
         $index = count($this->tables) - 1;
         $table = $this->tables[$index];
         $table .= ' on ';
-        $table .= implode(' and ', conditions);
+        $table .= implode(' and ', func_get_args());
         $this->tables[$index] = $table;
         return $this;
     }
 
-    public function where(...$conditions) {
-        return $this->setConditions(...$conditions);
+    public function where() {
+        return call_user_func_array(array($this, 'setConditions'), func_get_args());
     }
 
-    public function groupBy(...$columns) {
-        return $this->setGroups(...$columns);
+    public function groupBy() {
+        return call_user_func_array(array($this, 'setGroups'), func_get_args());
     }
 
-    public function having(...$conditions) {
-        return $this->setHavings(...$conditions);
+    public function having() {
+        return call_user_func_array(array($this, 'setHavings'), func_get_args());
     }
 
-    public function orderBy(...$columns) {
-        return $this->setOrders(...$columns);
+    public function orderBy() {
+        return call_user_func_array(array($this, 'setOrders'), func_get_args());
     }
 
     public function limit($limit) {
