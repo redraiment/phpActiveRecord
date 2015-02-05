@@ -54,7 +54,7 @@ class DB {
         $columns = func_get_args();
         $table_name = array_shift($columns);
 
-        $template = "create table if not exists %s (id int primary key auto_increment, %s, created_at timestamp default current_timestamp, updated_at datetime)";
+        $template = "create table if not exists %s (id integer primary key auto_increment, %s, created_at timestamp default current_timestamp, updated_at datetime)";
         $sql = sprintf($template, $table_name, implode(", ", $columns));
         $this->execute($sql);
         return $this->$table_name;
@@ -107,6 +107,6 @@ class DB {
             $this->relations[$table_name] = array();
         }
 
-        return new Table($this->relations[$table_name]);
+        return new Table($this, $table_name, $this->getColumns($table_name), $this->relations[$table_name]);
     }
 }

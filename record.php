@@ -24,9 +24,9 @@ class Record {
         } elseif (isset($table->relations[$name])) {
             $relation = $table->relations[$name];
             $active = $table->db->active($relation->target);
-            $active->join($relation->assoc($table->name, values['id']));
+            $active->join($relation->assoc($table->name, $values['id']));
             if ($relation->ancestor && !$relation->cross) {
-                $active->constrain($relation->key, values['id'])
+                $active->constrain($relation->key, $values['id']);
             }
             return $relation->onlyOne? $active->first(): $active;
         }
@@ -59,6 +59,6 @@ class Record {
     public function __toString() {
         return implode("\n", array_map(function($key) {
             return $key . ' = ' . $this->values[$key];
-        }, array_keys($this->values));
+        }, array_keys($this->values)));
     }
 }
