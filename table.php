@@ -71,13 +71,36 @@ class Table {
     }
 
     /* CRUD */
-
     public function create() {
-        // TODO
+        $args = func_get_args();
+        $data = array();
+        for ($i = 0; $i < func_num_args(); $i += 2) {
+            $key = parseKeyParameter($args[$i]);
+            if (in_array($key, $this->columns)) {
+                $value = $args[$i + 1];
+                $data[$key] = $value;
+            }
+        }
+        $sql = new SqlBuilder();
+        $sql->insert()->into($this->name)->values(array_keys($data));
+        $values = array_values($data);
+        array_unshift($values, $sql->__toString());
+        call_user_func_array(array($this->db, 'execute'), $values);
+        $id = $this->db->lastInsertId();
+        return $id > 0? $this->find($id): null;
     }
 
     public function update($record) {
-        // TODO
+        $sql = "update {$this->name} set ";
+        $sql .= implode(", ", array_map(function($column) {
+            return "{$column} = ?";
+        }, $this->columns));
+        $sql .= ", updated_at = now() where id = {$record->id}";
+        $values = array_map(function($column) use($record) {
+            $record->$column;
+        }, $this->columns);
+        array_unshift($values, $sql);
+        return call_user_func_array(array($this->db, 'execute'), $values);
     }
 
     public function delete($record) {
