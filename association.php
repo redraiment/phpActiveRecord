@@ -27,7 +27,7 @@ class Association {
         } elseif ($name === 'ancestor') {
             return $this->ancestor;
         } elseif ($name === 'cross') {
-            return $this->assoc === null;
+            return $this->assoc !== null;
         }
         return null;
     }

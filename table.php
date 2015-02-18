@@ -21,7 +21,7 @@ class Table {
         $this->columns = $columns;
         $this->relations = &$relations;
         $this->primaryKey = $name . ".id";
-        $this->foreignKeys = array();
+        $this->foreignKeys = [];
     }
 
     public function __get($name) {
@@ -71,21 +71,19 @@ class Table {
     }
 
     /* CRUD */
-    public function create() {
-        $args = func_get_args();
-        $data = array();
+    public function create(...$args) {
+        $columns = array_keys($this->foreignKeys);
+        $values = array_values($this->foreignKeys);
         for ($i = 0; $i < func_num_args(); $i += 2) {
             $key = parseKeyParameter($args[$i]);
             if (in_array($key, $this->columns)) {
-                $value = $args[$i + 1];
-                $data[$key] = $value;
+                $columns[] = $key;
+                $values[] = $args[$i + 1];
             }
         }
         $sql = new SqlBuilder();
-        $sql->insert()->into($this->name)->values(array_keys($data));
-        $values = array_values($data);
-        array_unshift($values, $sql->__toString());
-        call_user_func_array(array($this->db, 'execute'), $values);
+        $sql->insert()->into($this->name)->values(...$columns);
+        $this->db->execute($sql->__toString(), ...$values);
         $id = $this->db->lastInsertId();
         return $id > 0? $this->find($id): null;
     }
@@ -99,8 +97,7 @@ class Table {
         $values = array_map(function($column) use($record) {
             $record->$column;
         }, $this->columns);
-        array_unshift($values, $sql);
-        return call_user_func_array(array($this->db, 'execute'), $values);
+        return $this->db->execute($sql, ...$values);
     }
 
     public function delete($record) {
@@ -115,18 +112,18 @@ class Table {
         }
     }
 
-    public function query() {
+    public function query($sql, ...$parameters) {
         return array_map(function($row) {
             return new Record($this, $row);
-        }, call_user_func_array(array($this->db, 'query'), func_get_args()));
+        }, $this->db->query($sql, ...$parameters));
     }
 
-    public function select() {
+    public function select(...$fields) {
         $sql = new Query($this);
         if (func_num_args() === 0) {
             $sql->select("{$this->name}.*");
         } else {
-            call_user_func_array(array($sql, 'select'), func_num_args());
+            $sql->select(...$fields);
         }
         $sql->from($this->name);
         if (!empty($this->foreignTableName)) {
@@ -138,25 +135,23 @@ class Table {
         return $sql->orderBy($this->primaryKey);
     }
 
-    public function first() {
+    public function first(...$args) {
         if (func_num_args() === 0) {
             return $this->select()->limit(1)->one();
         } else {
-            $args = func_get_args();
-            $condition = array_unshift($args);
+            $condition = array_shift($args);
             $query = $this->select()->where($condition)->limit(1);
-            return call_user_func_array(array($query, 'one'), $args);
+            return $query->one(...$args);
         }
     }
 
-    public function last() {
+    public function last(...$args) {
         if (func_num_args() === 0) {
             return $this->select()->orderBy("{$this->primaryKey} desc")->limit(1)->one();
         } else {
-            $args = func_get_args();
-            $condition = array_unshift($args);
+            $condition = array_shift($args);
             $query = $this->select()->where($condition)->orderBy("{$this->primaryKey} desc")->limit(1);
-            return call_user_func_array(array($query, 'one'), $args);
+            return $query->one(...$args);
         }
     }
 
@@ -186,14 +181,12 @@ class Table {
         return $this->select()->all();
     }
 
-    public function where() {
-        $args = func_get_args();
-        $condition = array_unshift($args);
+    public function where($condition, ...$args) {
         $query = $this->select()->where($condition);
-        return call_user_func_array(array($query, 'all'), args);
+        return $query->all(...$args);
     }
 
     public function paging($page, $size) {
-        return $this->select()->limit($size)->offset($page * $size)->all();
+        return $this->select()->limit($size)->offset(($page - 1) * $size)->all();
     }
 }

@@ -17,13 +17,15 @@ class Record {
 
     public function __get($name) {
         $values = $this->values;
-        $relations = $this->relations;
+        $table = $this->table;
+        $relations = $table->relations;
 
         if (isset($values[$name])) {
             return $values[$name];
-        } elseif (isset($table->relations[$name])) {
-            $relation = $table->relations[$name];
-            $active = $table->db->active($relation->target);
+        } elseif (isset($relations[$name])) {
+            $relation = $relations[$name];
+            $target = $relation->target;
+            $active = $table->db->$target;
             $active->join($relation->assoc($table->name, $values['id']));
             if ($relation->ancestor && !$relation->cross) {
                 $active->constrain($relation->key, $values['id']);

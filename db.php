@@ -3,10 +3,8 @@
 require_once('table.php');
 
 class DB {
-    public static function open() {
-        $reflect = new ReflectionClass('PDO');
-        $pdo = $reflect->newInstanceArgs(func_get_args());
-        return new DB($pdo);
+    public static function open(...$options) {
+        return new DB(new PDO(...$options));
     }
 
     private $base;
@@ -15,20 +13,20 @@ class DB {
 
     function __construct($base) {
         $this->base = $base;
-        $this->columns = array();
-        $this->relations = array();
+        $this->columns = [];
+        $this->relations = [];
     }
 
-    function execute() {
-        $parameters = func_get_args();
-        $sql = array_shift($parameters);
+    function execute($sql, ...$parameters) {
         $call = $this->base->prepare($sql);
         return $call->execute($parameters);
     }
 
-    function query() {
-        $parameters = func_get_args();
-        $sql = array_shift($parameters);
+    function lastInsertId() {
+        return $this->base->lastInsertId();
+    }
+
+    function query($sql, ...$parameters) {
         $call = $this->base->prepare($sql);
         $call->execute($parameters);
         return $call->fetchAll();
@@ -50,10 +48,7 @@ class DB {
         return $this;
     }
 
-    function createTable() {
-        $columns = func_get_args();
-        $table_name = array_shift($columns);
-
+    function createTable($table_name, ...$columns) {
         $template = "create table if not exists %s (id integer primary key auto_increment, %s, created_at timestamp default current_timestamp, updated_at datetime)";
         $sql = sprintf($template, $table_name, implode(", ", $columns));
         $this->execute($sql);
@@ -64,11 +59,7 @@ class DB {
         return $this->execute("drop table if exists {$table_name}");
     }
 
-    function createIndex() {
-        $column_names = func_get_args();
-        $index_name = array_shift($column_names);
-        $table_name = array_shift($column_names);
-
+    function createIndex($index_name, $table_name, ...$column_names) {
         $template = "create index %s on %s(%s)";
         $sql = sprintf($template, $index_name, $table_name, implode(", ", $column_names));
         return $this->execute($sql);
@@ -96,7 +87,7 @@ class DB {
                 return $row[0];
             }, $this->query("show columns from {$table_name}"));
             $this->columns[$table_name] = array_filter($columns, function($column_name) {
-                return !in_array($column_name, array('id', 'created_at', 'updated_at'));
+                return !in_array($column_name, ['id', 'created_at', 'updated_at']);
             });
         }
         return $this->columns[$table_name];
@@ -104,7 +95,7 @@ class DB {
 
     function __get($table_name) {
         if (!isset($this->relations[$table_name])) {
-            $this->relations[$table_name] = array();
+            $this->relations[$table_name] = [];
         }
 
         return new Table($this, $table_name, $this->getColumns($table_name), $this->relations[$table_name]);

@@ -9,17 +9,16 @@ class Query {
 
     function __construct($table) {
         $this->table = $table;
+        $this->sql = new SqlBuilder();
     }
 
-    public function all() {
-        $params = func_get_args();
-        array_unshift($params, $this->sql);
-        return call_user_func_array(array($table, 'query'), $params);
+    public function all(...$parameters) {
+        return $this->table->query($this->sql->__toString(), ...$parameters);
     }
 
-    public function one() {
+    public function one(...$parameters) {
         $this->limit(1);
-        $models = call_user_func_array(array($this, 'all'), func_get_args());
+        $models = $this->all(...$parameters);
         if (!isset($models) || empty($models)) {
             return null;
         } else {
@@ -27,38 +26,38 @@ class Query {
         }
     }
 
-    public function select() {
-        call_user_func_array(array($this->sql, 'select'), func_get_args());
+    public function select(...$fields) {
+        $this->sql->select(...$fields);
         return $this;
     }
 
-    public function from() {
-        call_user_func_array(array($this->sql, 'from'), func_get_args());
+    public function from($table) {
+        $this->sql->from($table);
         return $this;
     }
 
-    public function join() {
-        call_user_func_array(array($this->sql, 'join'), func_get_args());
+    public function join($table) {
+        $this->sql->join($table);
         return $this;
     }
 
     public function where($condition) {
-        $this->addCondition($condition);
+        $this->sql->addCondition($condition);
         return $this;
     }
 
-    public function groupBy() {
-        call_user_func_array(array($this->sql, 'groupBy'), func_get_args());
+    public function groupBy(...$groups) {
+        $this->sql->groupBy(...$groups);
         return $this;
     }
 
-    public function having() {
-        call_user_func_array(array($this->sql, 'having'), func_get_args());
+    public function having(...$havings) {
+        $this->sql->having(...$havings);
         return $this;
     }
 
-    public function orderBy() {
-        call_user_func_array(array($this->sql, 'orderBy'), func_get_args());
+    public function orderBy(...$orders) {
+        $this->sql->orderBy(...$orders);
         return $this;
     }
 

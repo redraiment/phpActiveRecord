@@ -14,12 +14,12 @@ class SqlBuilder {
 
     private function start($mode) {
         $this->mode = $mode;
-        $this->fields = array();
-        $this->tables = array();
-        $this->conditions = array();
-        $this->groups = array();
-        $this->havings = array();
-        $this->orders = array();
+        $this->fields = [];
+        $this->tables = [];
+        $this->conditions = [];
+        $this->groups = [];
+        $this->havings = [];
+        $this->orders = [];
         $this->limit = -1;
         $this->offset = -1;
         return $this;
@@ -55,33 +55,33 @@ class SqlBuilder {
         return $this;
     }
 
-    public function setField() {
-        $this->fields = func_get_args();
+    public function setFields(...$fields) {
+        $this->fields = $fields;
         return $this;
     }
 
-    public function setTable() {
-        $this->tables = func_get_args();
+    public function setTables(...$tables) {
+        $this->tables = $tables;
         return $this;
     }
 
-    public function setCondition() {
-        $this->conditions = func_get_args();
+    public function setConditions(...$conditions) {
+        $this->conditions = $conditions;
         return $this;
     }
 
-    public function setGroup() {
-        $this->groups = func_get_args();
+    public function setGroups(...$groups) {
+        $this->groups = $groups;
         return $this;
     }
 
-    public function setHaving() {
-        $this->havings = func_get_args();
+    public function setHavings(...$havings) {
+        $this->havings = $havings;
         return $this;
     }
 
-    public function setOrder() {
-        $this->orders = func_get_args();
+    public function setOrders(...$orders) {
+        $this->orders = $orders;
         return $this;
     }
 
@@ -105,8 +105,8 @@ class SqlBuilder {
         return $this->setTables($table);
     }
 
-    public function value() {
-        return call_user_func_array(array($this, 'setFields'), func_get_args());
+    public function values(...$fields) {
+        return $this->setFields(...$fields);
     }
 
     public function update($table) {
@@ -114,16 +114,16 @@ class SqlBuilder {
         return $this->setTables($table);
     }
 
-    public function set() {
-        return call_user_func_array(array($this, 'setFields'), func_get_args());
+    public function set(...$fields) {
+        return $this->setFields(...$fields);
     }
 
-    public function select() {
+    public function select(...$fields) {
         $this->start('select');
-        if (func_num_args() === 0) {
+        if (count($fields) === 0) {
             return $this->setFields('*');
         } else {
-            return call_user_func_array(array($this, 'setFields'), func_get_args());
+            return $this->setFields(...$fields);
         }
     }
 
@@ -139,29 +139,29 @@ class SqlBuilder {
         return $this->addTable($table);
     }
 
-    public function on() {
+    public function on(...$conditions) {
         $index = count($this->tables) - 1;
         $table = $this->tables[$index];
         $table .= ' on ';
-        $table .= implode(' and ', func_get_args());
+        $table .= implode(' and ', $conditions);
         $this->tables[$index] = $table;
         return $this;
     }
 
-    public function where() {
-        return call_user_func_array(array($this, 'setConditions'), func_get_args());
+    public function where(...$conditions) {
+        return $this->setConditions(...$conditions);
     }
 
-    public function groupBy() {
-        return call_user_func_array(array($this, 'setGroups'), func_get_args());
+    public function groupBy(...$groups) {
+        return $this->setGroups(...$groups);
     }
 
-    public function having() {
-        return call_user_func_array(array($this, 'setHavings'), func_get_args());
+    public function having(...$havings) {
+        return $this->setHavings(...$havings);
     }
 
-    public function orderBy() {
-        return call_user_func_array(array($this, 'setOrders'), func_get_args());
+    public function orderBy(...$orders) {
+        return $this->setOrders(...$orders);
     }
 
     public function limit($limit) {
@@ -241,16 +241,16 @@ class SqlBuilder {
     public function __toString() {
         switch ($this->mode) {
         case 'select':
-            return selectToString();
+            return $this->selectToString();
             break;
         case 'insert':
-            return insertToString();
+            return $this->insertToString();
             break;
         case 'update':
-            return updateToString();
+            return $this->updateToString();
             break;
         case 'delete':
-            return deleteToString();
+            return $this->deleteToString();
             break;
         }
     }
