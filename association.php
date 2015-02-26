@@ -47,7 +47,7 @@ class Association {
         if (isset($this->relations[$assoc])) {
             $this->assoc = $this->relations[$assoc];
         } else {
-            // throw new UndefinedAssociationException($assoc);
+            throw new Exception("Undefined Association {$assoc}");
         }
         return $this;
     }
