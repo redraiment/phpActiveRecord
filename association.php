@@ -9,6 +9,7 @@ class Association {
 
     private $assoc;
     public $target;
+    public $alias;
     public $key;
 
     function __construct($relations, $name, $onlyOne, $ancestor) {
@@ -17,6 +18,7 @@ class Association {
         $this->ancestor = $ancestor;
 
         $this->target = $name;
+        $this->alias = null;
         $this->key = $name . '_id';
         $this->assoc = null;
     }
@@ -42,6 +44,11 @@ class Association {
         return $this;
     }
 
+    public function be($alias_name) {
+        $this->alias = $alias_name;
+        return $this;
+    }
+
     public function through($assoc) {
         $assoc = parseKeyParameter($assoc);
         if (isset($this->relations[$assoc])) {
@@ -52,9 +59,9 @@ class Association {
         return $this;
     }
 
-    public function assoc($source, $id) {
+    public function assoc($source, $alias, $id) {
         if ($this->cross) {
-            $other = $this->assoc->assoc($source, $id);
+            $other = $this->assoc->assoc($source, $alias, $id);
             if ($this->ancestor) {
                 return "{$this->assoc->target} on {$this->target}.{$this->key} = {$this->assoc->target}.id join {$other}";
             } else {
@@ -62,9 +69,9 @@ class Association {
             }
         } else {
             if ($this->ancestor) {
-                return "{$source} on {$this->target}.{$this->key} = {$source}.id and {$source}.id = {$id}";
+                return "{$source} as {$alias} on {$this->target}.{$this->key} = {$alias}.id and {$alias}.id = {$id}";
             } else {
-                return "{$source} on {$source}.{$this->key} = {$this->target}.id and {$source}.id = {$id}";
+                return "{$source} as {$alias} on {$alias}.{$this->key} = {$this->target}.id and {$alias}.id = {$id}";
             }
         }
     }

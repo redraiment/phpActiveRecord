@@ -25,8 +25,9 @@ class Record {
         } elseif (isset($relations[$name])) {
             $relation = $relations[$name];
             $target = $relation->target;
+            $alias = ($relation->alias === null)? $table->name: $relation->alias;
             $active = $table->db->$target;
-            $active->join($relation->assoc($table->name, $values['id']));
+            $active->join($relation->assoc($table->name, $alias, $values['id']));
             if ($relation->ancestor && !$relation->cross) {
                 $active->constrain($relation->key, $values['id']);
             }
