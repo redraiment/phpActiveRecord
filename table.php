@@ -84,7 +84,7 @@ class Table {
         $sql = new SqlBuilder();
         $sql->insert()->into($this->name)->values(...$columns);
         $this->db->execute($sql->__toString(), ...$values);
-        $id = $this->db->lastInsertId();
+        $id = $this->db->lastInsertId($this->name);
         return $id > 0? $this->find($id): null;
     }
 

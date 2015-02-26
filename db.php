@@ -33,8 +33,8 @@ class DB {
         return $call->execute($parameters);
     }
 
-    function lastInsertId() {
-        return $this->base->lastInsertId();
+    function lastInsertId($table_name) {
+        return $this->base->lastInsertId($this->dialect->sequence($table_name));
     }
 
     function query($sql, ...$parameters) {
@@ -60,10 +60,10 @@ class DB {
     // }
 
     function createTable($table_name, ...$columns) {
-        $template = "create table if not exists %s (id integer primary key auto_increment, %s, created_at timestamp default current_timestamp, updated_at datetime)";
-        $sql = sprintf($template, $table_name, implode(", ", $columns));
+        $template = "create table if not exists %s (id %s, %s, created_at timestamp default current_timestamp, updated_at timestamp)";
+        $sql = sprintf($template, $table_name, $this->dialect->identity(), implode(", ", $columns));
         $this->execute($sql);
-        return $this->$table_name;
+        return $this->__get($table_name);
     }
 
     function dropTable($table_name) {
@@ -96,7 +96,7 @@ class DB {
         if (!isset($this->columns[$table_name])) {
             $columns = array_map(function($row) {
                 return $row[0];
-            }, $this->query($this->dialect->columns, $table_name));
+            }, $this->query($this->dialect->columns(), $table_name));
             $this->columns[$table_name] = array_filter($columns, function($column_name) {
                 return !in_array($column_name, ['id', 'created_at', 'updated_at']);
             });

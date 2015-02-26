@@ -3,6 +3,7 @@
 interface Dialect {
     public function convert($identifier);
     public function identity();
+    public function sequence($table_name);
     public function tables();
     public function columns();
 }
@@ -14,6 +15,10 @@ class MySQLDialect implements Dialect {
 
     public function identity() {
         return "integer primary auto_increment";
+    }
+
+    public function sequence($table_name) {
+        return "id";
     }
 
     public function tables() {
@@ -32,6 +37,10 @@ class PostgreSQLDialect implements Dialect {
 
     public function identity() {
         return "serial primary key";
+    }
+
+    public function sequence($table_name) {
+        return "{$table_name}_id_seq";
     }
 
     public function tables() {

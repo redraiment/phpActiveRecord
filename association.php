@@ -62,9 +62,9 @@ class Association {
             }
         } else {
             if ($this->ancestor) {
-                return "{$this->source} on {$this->target}.{$this->key} = {$this->source}.id and {$this->source}.id = {$id}";
+                return "{$source} on {$this->target}.{$this->key} = {$source}.id and {$source}.id = {$id}";
             } else {
-                return "{$this->source} on {$this->source}.{$this->key} = {$this->target}.id and {$this->source}.id = {$id}";
+                return "{$source} on {$source}.{$this->key} = {$this->target}.id and {$source}.id = {$id}";
             }
         }
     }
