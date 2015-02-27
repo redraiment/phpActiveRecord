@@ -13,7 +13,9 @@ class DB {
         } else {
             throw new Exception("Unsupported Database Type");
         }
-        return new DB(new PDO($url, ...$options), $dialect);
+        $base = new PDO($url, ...$options);
+        $base->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        return new DB($base, $dialect);
     }
 
     private $base;
