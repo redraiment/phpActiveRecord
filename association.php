@@ -59,19 +59,23 @@ class Association {
         return $this;
     }
 
-    public function assoc($source, $alias, $id) {
+    public function assoc($source, $alias, $id, $target_alias = null) {
         if ($this->cross) {
-            $other = $this->assoc->assoc($source, $alias, $id);
+            $other = $this->assoc->assoc($source, $alias, $id, $this->assoc->alias);
+            $target_alias = ($this->assoc->alias !== null)? $this->assoc->alias: $this->assoc->target;
             if ($this->ancestor) {
-                return "{$this->assoc->target} on {$this->target}.{$this->key} = {$this->assoc->target}.id join {$other}";
+                return "{$this->assoc->target} as {$target_alias} on {$this->target}.{$this->key} = {$target_alias}.id join {$other}";
             } else {
-                return "{$this->assoc->target} on {$this->assoc->target}.{$this->key} = {$this->target}.id join {$other}";
+                return "{$this->assoc->target} as {$target_alias} on {$target_alias}.{$this->key} = {$this->target}.id join {$other}";
             }
         } else {
+            if ($target_alias === null) {
+                $target_alias = $this->target;
+            }
             if ($this->ancestor) {
-                return "{$source} as {$alias} on {$this->target}.{$this->key} = {$alias}.id and {$alias}.id = {$id}";
+                return "{$source} as {$alias} on {$target_alias}.{$this->key} = {$alias}.id and {$alias}.id = {$id}";
             } else {
-                return "{$source} as {$alias} on {$alias}.{$this->key} = {$this->target}.id and {$alias}.id = {$id}";
+                return "{$source} as {$alias} on {$alias}.{$this->key} = {$target_alias}.id and {$alias}.id = {$id}";
             }
         }
     }

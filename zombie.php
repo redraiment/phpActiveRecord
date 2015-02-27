@@ -38,7 +38,7 @@ $Zombie->hasMany('tweets')->by('zombie_id');
 $Zombie->hasAndBelongsToMany('travelled_cities')->by('city_id')->in('cities')->through('tweets');
 $Zombie->hasMany("received_comments")->by("tweet_id")->in("comments")->through("tweets");
 $Zombie->hasMany("send_comments")->by("zombie_id")->in("comments");
-$Zombie->hasMany("follower_relations")->by("following")->in("relations");
+$Zombie->hasMany("follower_relations")->by("following")->in("relations")->be("a");
 $Zombie->hasAndBelongsToMany("followers")->by("follower")->in("zombies")->be("followers")->through("follower_relations");
 $Zombie->hasMany("following_relations")->by("follower")->in("relations");
 $Zombie->hasAndBelongsToMany("followings")->by("following")->in("zombies")->be("followings")->through("following_relations");
