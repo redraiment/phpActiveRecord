@@ -132,7 +132,10 @@ class Table {
         foreach ($this->getForeignKeys() as $condition) {
             $sql->where($condition);
         }
-        return $sql->orderBy($this->primaryKey);
+        if (func_num_args() === 0 || in_array($this->primaryKey, $fields) || in_array('id', $fields)) {
+            $sql->orderBy($this->primaryKey);
+        }
+        return $sql;
     }
 
     public function first(...$args) {
