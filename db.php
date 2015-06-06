@@ -45,22 +45,6 @@ class DB {
         return $call->fetchAll();
     }
 
-    // public function using($database_name) {
-    //     $this->execute("use {$database_name}");
-    //     return $this;
-    // }
-
-    // public function create($database_name) {
-    //     $this->execute("create database if not exists {$database_name} default character set utf8 collate utf8_general_ci");
-    //     $this->using($database_name);
-    //     return $this;
-    // }
-
-    // public function drop($database_name) {
-    //     $this->execute("drop database if exists {$database_name}");
-    //     return $this;
-    // }
-
     public function createTable($table_name, ...$columns) {
         $template = "create table if not exists %s (id %s, %s, created_at timestamp default current_timestamp, updated_at timestamp)";
         $sql = sprintf($template, $table_name, $this->dialect->identity(), implode(", ", $columns));
