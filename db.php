@@ -70,6 +70,10 @@ class DB {
         return $this->execute("drop table if exists {$table_name}");
     }
 
+    public function alterTable($table_name, $statement) {
+        return $this->execute("alter table {$table_name} {$statement}");
+    }
+
     public function createIndex($index_name, $table_name, ...$column_names) {
         $template = "create index %s on %s(%s)";
         $sql = sprintf($template, $index_name, $table_name, implode(", ", $column_names));
