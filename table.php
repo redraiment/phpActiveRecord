@@ -95,7 +95,7 @@ class Table {
         }, $this->columns));
         $sql .= ", updated_at = now() where id = {$record->id}";
         $values = array_map(function($column) use($record) {
-            $record->$column;
+            return $record->$column;
         }, $this->columns);
         return $this->db->execute($sql, ...$values);
     }
