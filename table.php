@@ -189,4 +189,15 @@ class Table {
     public function paging($page, $size) {
         return $this->select()->limit($size)->offset(($page - 1) * $size)->all();
     }
+
+    public function size(...$args) {
+        $query = $this->select('count(*) as size');
+        if (func_num_args() === 0) {
+            $record = $query->one();
+        } else {
+            $condition = array_shift($args);
+            $record = $query->where($condition)->one(...$args);
+        }
+        return intval($record->size);
+    }
 }
