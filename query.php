@@ -70,4 +70,8 @@ class Query {
         $this->sql->offset($offset);
         return $this;
     }
+
+    public function __toString() {
+        return $this->sql->__toString();
+    }
 }
