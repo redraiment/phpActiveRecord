@@ -30,6 +30,10 @@ class DB {
         $this->relations = [];
     }
 
+    public function prepare($sql) {
+        return $this->base->prepare($sql);
+    }
+
     public function execute($sql, ...$parameters) {
         $call = $this->base->prepare($sql);
         return $call->execute($parameters);
