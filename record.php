@@ -50,7 +50,7 @@ class Record {
     public function update() {
         $args = func_get_args();
         for ($i = 0; $i < func_num_args(); $i += 2) {
-            $this->set($args[$i], $args[$i + 1]);
+            $this->__set($args[$i], $args[$i + 1]);
         }
         return $this->save();
     }
