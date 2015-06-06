@@ -11,21 +11,32 @@ class Table {
     private $name;
     private $columns;
     private $relations;
+    private $hooks;
     private $primaryKey;
     private $foreignKeys;
     private $foreignTableName;
 
-    function __construct($db, $name, $columns, &$relations) {
+    function __construct($db, $name, $columns, &$relations, &$hooks) {
         $this->db = $db;
         $this->name = $name;
         $this->columns = $columns;
         $this->relations = &$relations;
+        $this->hooks = &$hooks;
         $this->primaryKey = $name . ".id";
         $this->foreignKeys = [];
     }
 
+    public function extend($hooks) {
+        foreach ($hooks as $method => $fn) {
+            if (preg_match('/^(?:get|set|call)_/', $method)) {
+                $this->hooks[$method] = $fn;
+            }
+        }
+        return $this;
+    }
+
     public function __get($name) {
-        if (in_array($name, array('db', 'name', 'columns', 'relations'))) {
+        if (in_array($name, array('db', 'name', 'columns', 'relations', 'hooks'))) {
             return $this->$name;
         }
         return null;

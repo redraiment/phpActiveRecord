@@ -22,6 +22,7 @@ class DB {
     private $dialect;
     private $columns;
     private $relations;
+    private $hooks;
     private $transaction_level;
 
     function __construct($base, $dialect) {
@@ -29,6 +30,7 @@ class DB {
         $this->dialect = $dialect;
         $this->columns = [];
         $this->relations = [];
+        $this->hooks = [];
         $this->transaction_level = 0;
     }
 
@@ -115,8 +117,11 @@ class DB {
         if (!isset($this->relations[$table_name])) {
             $this->relations[$table_name] = [];
         }
+        if (!isset($this->hooks[$table_name])) {
+            $this->hooks[$table_name] = [];
+        }
 
-        return new Table($this, $table_name, $this->getColumns($table_name), $this->relations[$table_name]);
+        return new Table($this, $table_name, $this->getColumns($table_name), $this->relations[$table_name], $this->hooks[$table_name]);
     }
 
     public function tx($fn) {

@@ -19,9 +19,11 @@ class Record {
         $values = $this->values;
         $table = $this->table;
         $relations = $table->relations;
+        $hooks = $table->hooks;
 
+        $value = null;
         if (isset($values[$name])) {
-            return $values[$name];
+            $value = $values[$name];
         } elseif (isset($relations[$name])) {
             $relation = $relations[$name];
             $target = $relation->target;
@@ -31,15 +33,40 @@ class Record {
             if ($relation->ancestor && !$relation->cross) {
                 $active->constrain($relation->key, $values['id']);
             }
-            return $relation->onlyOne? $active->first(): $active;
+            $value = $relation->onlyOne? $active->first(): $active;
         }
 
-        return null;
+        $key = 'get_' . $name;
+        if (isset($hooks[$key])) {
+            $value = $hooks[$key]($this, $value);
+        } elseif (isset($hooks['get_*'])) {
+            $value = $hooks['get_*']($this, $name, $value);
+        }
+        return (is_numeric($value) && preg_match('/^[1-9]/', $value))? ($value + 0): $value;
     }
 
     public function __set($name, $value) {
+        $name = parseKeyParameter($name);
+
+        $hooks = $this->table->hooks;
+        $key = 'set_' . $name;
+        if (isset($hooks[$key])) {
+            $value = $hooks[$key]($this, $value);
+        }
+
         $this->values[$name] = $value;
         return $this;
+    }
+
+    public function __call($name, $arguments) {
+        $hooks = $this->table->hooks;
+        $key = 'call_' . $name;
+        if (isset($hooks[$key])) {
+            return $hooks[$key]($this, ...$arguments);
+        } elseif (isset($hooks['call_*'])) {
+            return $hooks['call_*']($this, $name, $arguments);
+        }
+        return null;
     }
 
     public function save() {
