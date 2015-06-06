@@ -60,7 +60,7 @@ class DB {
     }
 
     public function createTable($table_name, ...$columns) {
-        $template = "create table if not exists %s (id %s, %s, created_at timestamp default current_timestamp, updated_at timestamp)";
+        $template = "create table if not exists %s (id %s, %s, created_at timestamp default current_timestamp, updated_at timestamp default current_timestamp)";
         $sql = sprintf($template, $table_name, $this->dialect->identity(), implode(", ", $columns));
         $this->execute($sql);
         return $this->__get($table_name);
