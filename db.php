@@ -22,12 +22,14 @@ class DB {
     private $dialect;
     private $columns;
     private $relations;
+    private $transaction_level;
 
     function __construct($base, $dialect) {
         $this->base = $base;
         $this->dialect = $dialect;
         $this->columns = [];
         $this->relations = [];
+        $this->transaction_level = 0;
     }
 
     public function prepare($sql) {
@@ -118,12 +120,21 @@ class DB {
     }
 
     public function tx($fn) {
-        $this->base->beginTransaction();
+        if ($this->transaction_level === 0) {
+            $this->base->beginTransaction();
+        }
+        $this->transaction_level++;
         try {
-            $fn();
-            $this->base->commit();
-        } catch (PDOException $e) {
+            $result = $fn();
+            $this->transaction_level--;
+            if ($this->transaction_level === 0) {
+                $this->base->commit();
+            }
+            return $result;
+        } catch (Exception $e) {
+            $this->transaction_level = 0;
             $this->base->rollBack();
+            throw $e;
         }
     }
 }
