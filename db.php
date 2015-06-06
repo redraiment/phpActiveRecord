@@ -23,6 +23,7 @@ class DB {
     private $columns;
     private $relations;
     private $hooks;
+    private $cached;
     private $transaction_level;
 
     function __construct($base, $dialect) {
@@ -31,6 +32,7 @@ class DB {
         $this->columns = [];
         $this->relations = [];
         $this->hooks = [];
+        $this->cached = [];
         $this->transaction_level = 0;
     }
 
@@ -113,6 +115,10 @@ class DB {
     }
 
     public function __get($table_name) {
+        if (isset($this->cached[$table_name])) {
+            return $this->cached[$table_name];
+        }
+
         $table_name = $this->dialect->convert($table_name);
         if (!isset($this->relations[$table_name])) {
             $this->relations[$table_name] = [];
@@ -121,7 +127,8 @@ class DB {
             $this->hooks[$table_name] = [];
         }
 
-        return new Table($this, $table_name, $this->getColumns($table_name), $this->relations[$table_name], $this->hooks[$table_name]);
+        $cached[$table_name] = new Table($this, $table_name, $this->getColumns($table_name), $this->relations[$table_name], $this->hooks[$table_name]);
+        return $cached[$table_name];
     }
 
     public function tx($fn) {
@@ -137,6 +144,7 @@ class DB {
             }
             return $result;
         } catch (Exception $e) {
+            logger($e->__toString());
             $this->transaction_level = 0;
             $this->base->rollBack();
             throw $e;
