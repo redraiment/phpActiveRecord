@@ -161,19 +161,19 @@ class Table {
 
     public function findA($key, $value) {
         $key = parseKeyParameter($key);
-        if ($value != null) {
-            return $this->first("{$key} = ?", $value);
-        } else {
+        if (is_null($value)) {
             return $this->first("{$key} is null");
+        } else {
+            return $this->first("{$key} = ?", $value);
         }
     }
 
     public function findBy($key, $value) {
         $key = parseKeyParameter($key);
-        if ($value != null) {
-            return $this->where("{$key} = ?", $value);
-        } else {
+        if (is_null($value)) {
             return $this->where("{$key} is null");
+        } else {
+            return $this->where("{$key} = ?", $value);
         }
     }
 
