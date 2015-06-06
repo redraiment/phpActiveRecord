@@ -5,10 +5,12 @@ require_once('table.php');
 class Record {
     private $table;
     private $values;
+    private $cached;
 
     function __construct($table, $values) {
         $this->table = $table;
         $this->values = $values;
+        $this->cached = [];
     }
 
     public function columnNames() {
@@ -24,6 +26,8 @@ class Record {
         $value = null;
         if (isset($values[$name])) {
             $value = $values[$name];
+        } elseif (isset($this->cached[$name])) {
+            $value = $this->cached[$name];
         } elseif (isset($relations[$name])) {
             $relation = $relations[$name];
             $target = $relation->target;
@@ -34,6 +38,7 @@ class Record {
                 $active->constrain($relation->key, $values['id']);
             }
             $value = $relation->onlyOne? $active->first(): $active;
+            $this->cached[$name] = $value;
         }
 
         $key = 'get_' . $name;
