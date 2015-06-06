@@ -48,6 +48,6 @@ class PostgreSQLDialect implements Dialect {
     }
 
     public function columns() {
-        return "select column_name from information_schema.columns where table_name = ?";
+        return "select column_name from information_schema.columns where table_name = ? and table_schema != 'information_schema'";
     }
 }
