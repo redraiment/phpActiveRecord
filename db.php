@@ -144,7 +144,6 @@ class DB {
             }
             return $result;
         } catch (Exception $e) {
-            logger($e->__toString());
             $this->transaction_level = 0;
             $this->base->rollBack();
             throw $e;
