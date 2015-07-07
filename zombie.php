@@ -3,7 +3,7 @@
 require_once('activerecord.php');
 require_once('unit-test.php');
 
-$db = DB::open('pgsql:host=127.0.0.1;dbname=zombie;', 'dba', 'xticfeeq');
+$db = DB::open('pgsql:host=127.0.0.1;dbname=zombie;', 'dba', '');
 
 // Tables
 $db->dropTable('zombies');
