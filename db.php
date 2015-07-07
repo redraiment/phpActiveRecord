@@ -20,6 +20,7 @@ class DB {
 
     private $base;
     private $dialect;
+    private $name;
     private $columns;
     private $relations;
     private $hooks;
@@ -29,6 +30,7 @@ class DB {
     function __construct($base, $dialect) {
         $this->base = $base;
         $this->dialect = $dialect;
+        $this->name = $this->value($dialect->database());
         $this->columns = [];
         $this->relations = [];
         $this->hooks = [];
@@ -56,18 +58,17 @@ class DB {
     }
 
     public function one($sql, ...$parameters) {
-        $rows = $this->one($sql, ...$parameters);
+        $rows = $this->query($sql, ...$parameters);
         return empty($rows)? null: $rows[0];
     }
 
     public function value($sql, ...$parameters) {
-        $row = one($sql, ...$parameters);
+        $row = $this->one($sql, ...$parameters);
         return empty($row)? null: $row[0];
     }
 
     public function createTable($table_name, ...$columns) {
-        $template = "create table if not exists %s (id %s, %s, created_at timestamp default current_timestamp, updated_at timestamp default current_timestamp)";
-        $sql = sprintf($template, $table_name, $this->dialect->identity(), implode(", ", $columns));
+        $sql = sprintf($this->dialect->create_table(), $table_name, implode(", ", $columns));
         $this->execute($sql);
         return $this->__get($table_name);
     }
@@ -93,7 +94,7 @@ class DB {
     public function getTableNames() {
         return array_map(function($row) {
             return $row[0];
-        }, $this->query($this->dialect->tables()));
+        }, $this->query($this->dialect->tables(), $this->name));
     }
 
     public function getTables() {
@@ -106,7 +107,7 @@ class DB {
         if (!isset($this->columns[$table_name])) {
             $columns = array_map(function($row) {
                 return $row[0];
-            }, $this->query($this->dialect->columns(), $table_name));
+            }, $this->query($this->dialect->columns(), $this->name, $table_name));
             $this->columns[$table_name] = array_filter($columns, function($column_name) {
                 return !in_array($column_name, ['id', 'created_at', 'updated_at']);
             });
