@@ -1,11 +1,11 @@
 <?php
 
 interface Dialect {
-    public function convert($identifier);
-    public function identity();
-    public function sequence($table_name);
-    public function tables();
-    public function columns();
+    public function convert($identifier); // 数据库底层名称大小写转换
+    public function identity();           // 自增长语法
+    public function sequence($table_name); // 自增长字段名称
+    public function tables();              // 获取所有表名的SQL
+    public function columns();             // 获得所有列名的SQL
 }
 
 class MySQLDialect implements Dialect {
