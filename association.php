@@ -10,7 +10,8 @@ class Association {
     private $assoc;
     public $target;
     public $alias;
-    public $key;
+    public $primaryKey;
+    public $foreignKey;
 
     function __construct($relations, $name, $onlyOne, $ancestor) {
         $this->relations = $relations;
@@ -19,7 +20,8 @@ class Association {
 
         $this->target = $name;
         $this->alias = null;
-        $this->key = $name . '_id';
+        $this->primaryKey = 'id';
+        $this->foreignKey = $name . '_id';
         $this->assoc = null;
     }
 
@@ -34,8 +36,13 @@ class Association {
         return null;
     }
 
-    public function by($key) {
-        $this->key = $key;
+    public function via($primaryKey) {
+        $this->primaryKey = $primaryKey;
+        return $this;
+    }
+
+    public function by($foreignKey) {
+        $this->foreignKey = $foreignKey;
         return $this;
     }
 
@@ -64,18 +71,18 @@ class Association {
             $other = $this->assoc->assoc($source, $alias, $id, $this->assoc->alias);
             $target_alias = ($this->assoc->alias !== null)? $this->assoc->alias: $this->assoc->target;
             if ($this->ancestor) {
-                return "{$this->assoc->target} as {$target_alias} on {$this->target}.{$this->key} = {$target_alias}.id join {$other}";
+                return "{$this->assoc->target} as {$target_alias} on {$this->target}.{$this->foreignKey} = {$target_alias}.{$this->primaryKey} join {$other}";
             } else {
-                return "{$this->assoc->target} as {$target_alias} on {$target_alias}.{$this->key} = {$this->target}.id join {$other}";
+                return "{$this->assoc->target} as {$target_alias} on {$target_alias}.{$this->foreignKey} = {$this->target}.{$this->primaryKey} join {$other}";
             }
         } else {
             if ($target_alias === null) {
                 $target_alias = $this->target;
             }
             if ($this->ancestor) {
-                return "{$source} as {$alias} on {$target_alias}.{$this->key} = {$alias}.id and {$alias}.id = {$id}";
+                return "{$source} as {$alias} on {$target_alias}.{$this->foreignKey} = {$alias}.{$this->primaryKey} and {$alias}.{$this->primaryKey} = {$id}";
             } else {
-                return "{$source} as {$alias} on {$alias}.{$this->key} = {$target_alias}.id and {$alias}.id = {$id}";
+                return "{$source} as {$alias} on {$alias}.{$this->foreignKey} = {$target_alias}.{$this->primaryKey} and {$alias}.{$this->primaryKey} = {$id}";
             }
         }
     }
