@@ -35,7 +35,7 @@ class Record {
             $active = $table->db->$target;
             $active->join($relation->assoc($table->name, $alias, $values['id']));
             if ($relation->ancestor && !$relation->cross) {
-                $active->constrain($relation->key, $values['id']);
+                $active->constrain($relation->foreignKey, $values['id']);
             }
             $value = $relation->onlyOne? $active->first(): $active;
             $this->cached[$name] = $value;
