@@ -36,12 +36,12 @@ class Association {
         return null;
     }
 
-    public function via($primaryKey) {
+    public function primaryKey($primaryKey) {
         $this->primaryKey = $primaryKey;
         return $this;
     }
 
-    public function by($foreignKey) {
+    public function foreignKey($foreignKey) {
         $this->foreignKey = $foreignKey;
         return $this;
     }
@@ -51,7 +51,7 @@ class Association {
         return $this;
     }
 
-    public function be($alias_name) {
+    public function alias($alias_name) {
         $this->alias = $alias_name;
         return $this;
     }
