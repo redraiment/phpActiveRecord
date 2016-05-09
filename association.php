@@ -41,9 +41,17 @@ class Association {
         return $this;
     }
 
+    public function via($primaryKey) {
+        return $this->primaryKey($primaryKey);
+    }
+
     public function foreignKey($foreignKey) {
         $this->foreignKey = $foreignKey;
         return $this;
+    }
+
+    public function by($foreignKey) {
+        return $this->foreignKey($foreignKey);
     }
 
     public function in($table_name) {
@@ -54,6 +62,10 @@ class Association {
     public function alias($alias_name) {
         $this->alias = $alias_name;
         return $this;
+    }
+
+    public function be($alias_name) {
+        return $this->alias($alias_name);
     }
 
     public function through($assoc) {
