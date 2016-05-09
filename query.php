@@ -41,6 +41,16 @@ class Query {
         return $this;
     }
 
+    public function leftJoin($table) {
+        $this->sql->leftJoin($table);
+        return $this;
+    }
+
+    public function rightJoin($table) {
+        $this->sql->rightJoin($table);
+        return $this;
+    }
+
     public function where($condition) {
         $this->sql->addCondition($condition);
         return $this;

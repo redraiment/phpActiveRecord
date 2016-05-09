@@ -136,7 +136,15 @@ class SqlBuilder {
     }
 
     public function join($table) {
-        return $this->addTable($table);
+        return $this->addTable('inner join ' . $table);
+    }
+
+    public function leftJoin($table) {
+        return $this->addTable('left join ' . $table);
+    }
+
+    public function rightJoin($table) {
+        return $this->addTable('right join ' . $table);
     }
 
     public function on(...$conditions) {
@@ -178,7 +186,7 @@ class SqlBuilder {
         $sql = 'select ';
         $sql .= implode(', ', $this->fields);
         $sql .= ' from ';
-        $sql .= implode(' join ', $this->tables);
+        $sql .= implode(' ', $this->tables);
         if (count($this->conditions) > 0) {
             $sql .= ' where ';
             $sql .= implode(' and ', $this->conditions);
