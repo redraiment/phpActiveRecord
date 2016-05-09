@@ -70,6 +70,8 @@ class DB {
     public function createTable($table_name, ...$columns) {
         $sql = sprintf($this->dialect->create_table(), $table_name, implode(", ", $columns));
         $this->execute($sql);
+        unset($this->cached[$table_name]);
+        unset($this->columns[$table_name]);
         return $this->__get($table_name);
     }
 
